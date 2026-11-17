@@ -1,0 +1,32 @@
+# Day 46: least-privilege RBAC. A ServiceAccount that can only read pods in one namespace.
+# Test:  kubectl auth can-i list pods  --as=system:serviceaccount:demo:pod-reader -n demo   (yes)
+#        kubectl auth can-i delete pods --as=system:serviceaccount:demo:pod-reader -n demo  (no)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pod-reader
+  namespace: demo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+  namespace: demo
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-reader
+  namespace: demo
+subjects:
+  - kind: ServiceAccount
+    name: pod-reader
+    namespace: demo
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,33 @@
+name: Kubernetes lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+
+      - name: Helm lint and template
+        run: |
+          helm lint helm/demo-app
+          helm template demo helm/demo-app --set ingress.enabled=true > /tmp/helm-rendered.yaml
+
+      - name: Install kubeconform
+        run: |
+          curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz \
+            | tar xz -C /usr/local/bin kubeconform
+
+      - name: Validate plain manifests against the Kubernetes schema
+        run: kubeconform -strict -summary -ignore-missing-schemas -kubernetes-version 1.30.0 k8s/
+
+      - name: Validate rendered Helm output
+        run: kubeconform -strict -summary -kubernetes-version 1.30.0 /tmp/helm-rendered.yaml

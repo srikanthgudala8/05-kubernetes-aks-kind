@@ -1,0 +1,24 @@
+# Drill 5: pods Running but 0/1 Ready, and the rollout never finishes.
+# Hint: kubectl describe pod (probe failures), kubectl rollout status deploy/ready-demo
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ready-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ready-demo
+  template:
+    metadata:
+      labels:
+        app: ready-demo
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.27-alpine
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 5

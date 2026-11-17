@@ -1,0 +1,13 @@
+# Drill 3. Hint: kubectl describe pod, read the scheduler message under Events.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: broken-pending
+spec:
+  containers:
+    - name: hog
+      image: nginx:1.27-alpine
+      resources:
+        requests:
+          cpu: "64"
+          memory: 512Gi

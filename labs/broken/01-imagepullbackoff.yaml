@@ -1,0 +1,10 @@
+# Day 49 troubleshooting drill 1. Apply it, find out why it fails, fix it.
+# Hint: kubectl describe pod ... then look at Events.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: broken-image
+spec:
+  containers:
+    - name: web
+      image: nginx:1.99.99-does-not-exist
